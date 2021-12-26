@@ -1,0 +1,3 @@
+window.appConfig = {
+  debug: false,
+};

@@ -1,0 +1,17 @@
+{
+  "name": "Eyedrop",
+  "icons": [{
+    "src": "images/128.png",
+    "type": "image/png",
+    "sizes": "128x128"
+  }, {
+    "src": "images/192.png",
+    "type": "image/png",
+    "sizes": "192x192"
+  }],
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#596d92",
+  "theme_color": "#3f5173",
+  "gcm_sender_id": "103953800507"
+}

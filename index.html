@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+  
+  <title>Eyedrop - Online Screen Color Picker</title>
+  <meta name="viewport" content="width=device-width"/>
+  <link rel="manifest" href="/manifest.json"/>
+  <meta property="og:title" content="Eyedrop - Online Screen Color Picker"/>
+  <meta name="description" content="Online screen color picker tool brings to the web by EyeDropper web API."/>
+  <meta property="og:description" content="Online screen color picker tool brings to the web by EyeDropper web API."/>
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="google" content="notranslate"/>
+
+</head>
+<body>
+  
+  <style>
+    body{font-family:sans-serif}
+    img{max-width:100%;aspect-ratio: 16 / 9;}
+  </style>
+  
+  <div style="max-width:800px;margin:auto;">
+    <div class="supported" style="display:none;">
+      <div style="text-align:center;">
+        <h1>Eyedrop</h1>
+        <p>Online screen color picker tool brings to the web by EyeDropper web API.</p>
+        <div id="img">
+          <img id="darby" width="498" height="283"></img>
+        </div>
+        <p>
+          Good! EyeDropper API is supported in your browser! <br></br>
+          Click below button and try to pick a color from above D'Arby image from JoJo part 3
+        </p>
+        <div style="display:flex;gap:8px;justify-content:center;">
+          <button onclick="pickColor()" style="padding:1rem;">Pick Color from Screen</button>
+          <button onclick="pickColorDelayed()" style="padding:1rem;">Pick Color (delayed 2s)</button>
+          <button onclick="test()" style="padding:1rem;">Open Eyedrop mini window</button>
+          <div id="picked" onclick="pickColor()" style="width:50px;height:50px;border:2px solid;display:inline-block;cursor:pointer;"></div>
+        </div>
+        <div style="font-size:1.5rem;margin-top:1rem;">
+          Picked color : <span id="result">(none)</span>
+        </div>
+        <span id="info" style="font-style:italic;margin-top:12px;display:inline-block;"></span>
+      </div>
+      <hr>
+      <h1>Color Picking Method</h1>
+      <h2>Pick Color from Current Screen</h2>
+      <p style="line-height:1.5rem;">
+        This method will trigger the eye dropper input as soon as you click "Pick Color from Screen" button. You may be able to change browser tab on focus on another window using keyboard shortcut, but the eye dropper will pick color from what's seen on the screen when you click the button.
+      </p>
+      <p style="line-height:1.5rem;">
+        This method is best to use when you're working with multiple screen.
+      </p>
+      
+      <h2>Delayed Color Picking</h2>
+      <p style="line-height:1.5rem;">
+        Delayed color picking gives you enough time (2 seconds) to focus on another browser tab or window where you want trigger the eye dropper and pick a color from screen.
+      </p>
+      
+      <h2>Mini Window</h2>
+      <p style="line-height:1.5rem;">
+        If this feature is supported in your browser, you can open a small independent window of Eyedrop and close this page.
+      </p>
+      
+      <h1>Changelog</h1>
+      <h2>v1.0.1</h2>
+      <small>Dec 25, 2021</small>
+      <ul>
+        <li>Added delayed color picking</li>
+      </ul>
+    </div>
+    <div class="not-supported" style="display:none;">
+      <h1>Sorry, your browser does not support EyeDropper API yet.</h1>
+      <p>Try using another browser. Chrome is highly recommended as EyeDropper is currently an experimental web API launched in Chrome v95.</p>
+    </div>
+  </div>
+  
+  <template id='tmp-picker'>
+    <div style="text-align:center;">
+      <div style="display:flex;gap:8px;justify-content:center;">
+        <button onclick="pickColor()" style="padding:1rem;">Pick Color from Screen</button>
+        <div id="picked" onclick="pickColor()" style="width:50px;height:50px;border:2px solid;display:inline-block;cursor:pointer;"></div>
+      </div>
+      <div style="font-size:1rem;margin-top:1rem;">
+        Picked color : <span id="result">(none)</span>
+      </div>
+      <span id="info" style="font-style:italic;margin-top:12px;display:inline-block;"></span>
+    </div>
+    <script> $ = function(selector, node=document) { return node.querySelectorAll(selector) } </script>
+    <script>
+      document.title = 'Eyedrop (mini window)'
+      let eyeDropper = new EyeDropper();
+      function pickColor() {
+        eyeDropper.open().then(r => {
+          $('#result')[0].textContent = r.sRGBHex;
+          $('#picked')[0].style.background = r.sRGBHex;
+          copyToClipboard(r.sRGBHex);
+          $('#info')[0].textContent = "(copied to clipboard)"
+        });
+      }
+      function copyToClipboard(text) {
+        var node  = document.createElement('textarea');
+        node.value = text;
+        document.body.append(node);
+        node.select();
+        node.setSelectionRange(0, node.value.length);
+        document.execCommand("copy");
+        node.remove();
+      }
+      window.addEventListener('beforeunload', beforeUnload);
+      function beforeUnload(event) {
+        event.preventDefault();
+        event.returnValue = 'Exit Eyedrop mini window?.';
+      }
+    </script>
+  </template>
+  
+  
+  <script> L = console.log </script>
+  <script> $ = function(selector, node=document) { return node.querySelectorAll(selector) } </script>
+  <script>
+    
+    let eyeDropper;
+    
+    if ('EyeDropper' in window) {
+      // let img = new Image();
+      $('#darby')[0].src = 'darby-good.gif'
+      $('.supported')[0].style.display = 'block';
+      eyeDropper = new EyeDropper();
+    } else {
+      $('.not-supported')[0].style.display = 'block';
+    }
+    
+    function test() {
+      let txt = $('#tmp-picker')[0].innerHTML;
+      let blob = new Blob([txt], {type:'text/html'})
+      window.open(URL.createObjectURL(blob), 'teswin', 'titlebar=no,width=280,height=140');
+    } 
+    
+    function pickColor() {
+      eyeDropper.open().then(r => {
+        $('#result')[0].textContent = r.sRGBHex;
+        $('#picked')[0].style.background = r.sRGBHex;
+        copyToClipboard(r.sRGBHex);
+        $('#info')[0].textContent = "(copied to clipboard)"
+      });
+    }
+    
+    function pickColorDelayed() {
+      window.setTimeout(() => {
+        eyeDropper.open().then(r => {
+          $('#result')[0].textContent = r.sRGBHex;
+          $('#picked')[0].style.background = r.sRGBHex;
+          copyToClipboard(r.sRGBHex);
+          $('#info')[0].textContent = "(copied to clipboard)"
+        });
+      }, 2000);
+    }
+    
+    function copyToClipboard(text) {
+      var node  = document.createElement('textarea');
+      node.value = text;
+      document.body.append(node);
+      node.select();
+      node.setSelectionRange(0, node.value.length);
+      document.execCommand("copy");
+      node.remove();
+    }
+  </script>
+  
+  <script src="app-config.js"></script>
+  <script type="module">
+    (() => {
+      if (window.appConfig.debug)
+        return;
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+    
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+        apiKey: "AIzaSyACHCxj41Hv4p8al_nm99L0mFIO36M8iLU",
+        authDomain: "pacolemon.firebaseapp.com",
+        databaseURL: "https://pacolemon.firebaseio.com",
+        projectId: "pacolemon",
+        storageBucket: "pacolemon.appspot.com",
+        messagingSenderId: "254780146992",
+        appId: "1:254780146992:web:6f7f813d0daa3248efb4f5",
+        measurementId: "G-SLFKXK67Z2"
+      };
+    
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+    })();
+  </script>
+  <script>
+    if (typeof(navigator) !== 'undefined' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(function(swo) {
+        if (!navigator.serviceWorker.controller)
+          return
+        if (swo.waiting) {
+          swo.waiting.postMessage({action: 'skipWaiting'});
+          if (typeof(clientUpdateHandler) === 'undefined') {
+            
+            if (window.confirm('App updated. Reload page?'))
+              location.href = location.href;
+          } else {
+            worker = swo;
+            clientUpdateHandler(swo);
+          }
+          return;
+        }
+        if (swo.installing) {
+          swo.installing.addEventListener('statechange', function(e) {
+            if (swo.installing.state == 'installed') {
+              swo.waiting.postMessage({action: 'skipWaiting'});
+              if (typeof(clientUpdateHandler) === 'undefined') {
+                if (window.confirm('App updated. Reload page?'))
+                  location.href = location.href;
+              } else {
+                worker = swo;
+                clientUpdateHandler(swo);
+              }
+            }
+          })
+          return;
+        }
+        swo.addEventListener('updatefound', function() {
+          swo.installing.addEventListener('statechange', function(e) {
+            if (this.state == 'installed') {
+              swo.waiting.postMessage({action: 'skipWaiting'});
+              if (typeof(clientUpdateHandler) === 'undefined') {
+                if (window.confirm('App updated. Reload page?'))
+                  location.href = location.href;
+              } else {
+                worker = swo;
+                clientUpdateHandler(swo);
+              }
+            }
+          })
+        })
+      }).catch(function(e) {
+        console.error('Something went wrong.')
+      });
+    }
+  </script>
+  
+  
+</body>
+</html>

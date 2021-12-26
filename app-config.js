@@ -1,3 +1,3 @@
 window.appConfig = {
-  debug: false,
+  debug: true,
 };
